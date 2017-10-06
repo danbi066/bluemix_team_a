@@ -186,6 +186,7 @@ function popup_day(frm)
 	<ul class="nav nav-pills">
 		<li class="active"><a href="AdminRsv.jsp">예약관리</a></li>
 		<li><a href="AdminRsvHist.jsp">예약내역</a></li>
+		<li><a href="SearchApprove.do">예약승인</a></li>
 		<li><a href="SearchMember.do?option=all">On-Boarding</a></li>
 		<li><a href="SearchBlock.do?option=all">Off-Boarding</a></li>
 		<li><a href="SelectConf.do">회의실관리</a></li>
@@ -256,12 +257,19 @@ function popup_day(frm)
                                     <div class="input-group-addon">
                                        <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" readonly class="form-control" id="date"
-                                       name="date">
+                                    <input type="text" class="form-control" id="date"  name="date">
+                                    <!-- 수정2) 날짜 선택 가능하게 변경 Nam Ho Kang -->
+                                       <script>
+																				$('#date').datepicker({
+																					dateFormat : 'yyyy-mm-dd'
+																				});
+																				$('#date').datepicker('hide');
+																			</script>
+																		<!-- 수정 END -->
                                  </div>
                               </div>
                            </div>
-                           <div class="col-md-3">
+                           <div class="col-md-2">
                               <div class="form-group ">
                                  <label class="control-label " for="start_time"> 시작시간
                                  </label>
@@ -269,23 +277,33 @@ function popup_day(frm)
                                     <div class="input-group-addon">
                                        <i class="fa fa-clock-o"> </i>
                                     </div>
-                                    <select class="form-control" name="start_time"
-                                       id="start_time">
-                                       <option value="">선택하세요</option>
+                                    <select class="form-control" name="start_time" id="start_time" onchange="timeclick()">
+                                       <option value="">선택</option>
                                     </select>
                                  </div>
                               </div>
                            </div>
-                           <div class="col-md-3">
+                           <div class="col-md-2">
                               <div class="form-group ">
                                  <label class="control-label " for="end_time"> 끝시간 </label>
                                  <div class="input-group">
                                     <div class="input-group-addon">
                                        <i class="fa fa-clock-o"> </i>
                                     </div>
-                                    <select class="form-control" name="end_time" id="end_time">
-                                       <option value="">선택하세요</option>
+                                    <select class="form-control" name="end_time" id="end_time" onchange="timeclick()">
+                                       <option value="">선택</option>
                                     </select>
+                                 </div>
+                              </div>
+                           </div>
+                            <div class="col-md-2">
+                              <div class="form-group">
+                                 <label class="control-label " for="total_time"> 총시간 </label>
+                                 <div class="input-group">
+                                    <div class="input-group-addon">
+                                       <i class="fa fa-clock-o"> </i>
+                                    </div>
+                                    <input readonly style="direction: rtl;" class="form-control" id="total_time" name="total_time" type="text" />                                    
                                  </div>
                               </div>
                            </div>
@@ -318,8 +336,15 @@ function popup_day(frm)
                                     <div class="input-group-addon">
                                        <i class="fa fa-building"> </i>
                                     </div>
-                                    <input type="text" readonly class="form-control" id="confer_nm"
+                                    <!-- 수정2) 회의실 선택 가능하게 변경 Nam Ho Kang -->                                    
+                                    <select class="form-control" id="confer_nm"
                                        name="confer_nm">
+                                       <option value="에스프레소A">에스프레소A</option>
+                                       <option value="에스프레소B">에스프레소B</option>
+                                       <option value="마끼야또">마끼야또</option>
+                                       <option value="카푸치노">카푸치노</option>
+                                    </select>
+                                    <!-- 수정 END -->
                                  </div>
                               </div>
                            </div>
@@ -342,9 +367,9 @@ function popup_day(frm)
                                     <div class="input-group-addon">
                                        <i class="fa fa-lock"> </i>
                                     </div>
-                                    <input type="password" class="form-control" id="del_pw"
+                                    <input type="password" readonly class="form-control" id="del_pw"
                                        name="del_pw" data-toggle="tooltip" data-trigger="manual"
-                                       data-title="Caps lock is on">
+                                       data-title="Caps lock is on" value = "amsibmk0rea">
                                  </div>
                               </div>
                            </div>
@@ -411,7 +436,33 @@ function popup_day(frm)
          </div>
    </form>
    <div style="margin-top: 30px"></div>
-   <script>
+   <script> 
+   		//예약시 총 시간 확인 Nam Ho Kang
+			function timeclick(){
+				var total_time =  document.myForm.end_time.value - document.myForm.start_time.value;
+				if (total_time <= 0){
+					alert("시간을 확인하여 주십시오.");
+					return false;
+				}
+				if (total_time <= 70)
+					total_time = "0" + total_time;	
+				var total_time_hour = total_time.toString().substring(0, 1);
+				var total_time_minute = total_time.toString().substring(1, 3);
+				if (total_time_minute == "70")
+					total_time_minute = "30";
+				total_time = total_time_hour + "시간 " + total_time_minute + "분";
+				$('input[name="total_time"]').val(total_time);
+			}
+			   /*
+				* 수정3) 화면 자동 Refresh
+				* 3초에 한번씩 화면 자동 Refresh
+				* Nam Ho Kang
+				*/
+			function autoRefresh_schedule(){
+			 displaySchedule($("#date").val());
+				}
+				setInterval('autoRefresh_schedule()', 3000); 
+
       //해당 날짜 선택되어 있게
       <%
       if(selectDate != null){%>
@@ -467,7 +518,8 @@ function popup_day(frm)
                  end_time : document.myForm.end_time.value,
                  color : document.myForm.color.value,
                  title : document.myForm.title.value,
-                 del_pw : document.myForm.del_pw.value
+                 del_pw : document.myForm.del_pw.value,
+                 approved: "T"
               },
 
               success : function(data) {
@@ -495,6 +547,8 @@ function popup_day(frm)
              return false;
         }
          
+         var status = "T";
+         
          $.ajax({
               type : "post",
               url : "ModifyRsv.do",
@@ -514,7 +568,8 @@ function popup_day(frm)
                  color : document.myForm.color.value,
                  title : document.myForm.title.value,
                  del_pw : document.myForm.del_pw.value,
-                 
+                 approved : status,
+
                  repeat_seq : document.myForm.rsv_repeat_seq.value,
                  option : option
               },

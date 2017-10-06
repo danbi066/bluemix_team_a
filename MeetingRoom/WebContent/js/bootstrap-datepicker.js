@@ -260,6 +260,7 @@
 		click: function(e) {
 			e.stopPropagation();
 			e.preventDefault();
+			
 			var target = $(e.target).closest('span, td, th');
 			if (target.length === 1) {
 				switch(target[0].nodeName.toLowerCase()) {
@@ -276,7 +277,12 @@
 									DPGlobal.modes[this.viewMode].navStep * (target[0].className === 'prev' ? -1 : 1)
 								);
 								this.fill();
-								this.set();
+								/*
+								 * this.set();
+								 * 수정1) 달력 불편함 개선
+								 * 다음달로 이동할 때 달력이 닫히는 불편함 개선
+								 * Ja Yong Shin
+								 */
 								break;
 						}
 						break;
@@ -449,9 +455,17 @@
 		},
 		headTemplate: '<thead>'+
 							'<tr>'+
-								'<th class="prev">&lsaquo;</th>'+
+								/*
+								 * '<th class="prev">&lsaquo;</th>'+
+								 * '<th colspan="5" class="switch"></th>'+
+								 * '<th class="next">&rsaquo;</th>'+
+								 *  수정1) 달력 불편함 개선
+								 *  달력 양 옆에 -1일, +1일 버튼 추가
+								 *  Ja Yong Shin
+								*/
+								'<th class="prev">&laquo;</th>'+
 								'<th colspan="5" class="switch"></th>'+
-								'<th class="next">&rsaquo;</th>'+
+								'<th class="next">&raquo;</th>'+
 							'</tr>'+
 						'</thead>',
 		contTemplate: '<tbody><tr><td colspan="7"></td></tr></tbody>'

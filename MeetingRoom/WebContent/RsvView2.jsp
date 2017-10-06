@@ -55,6 +55,7 @@
 		<div class="collapse navbar-collapse" id="myNavbar">
 			<ul class="nav navbar-nav">
 				<li><a href="home.do">예약/현황</a></li>
+				<li><a href="Rsv_repeat.jsp">반복예약신청</a></li>
 				<li><a href="Search.jsp">검색</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">

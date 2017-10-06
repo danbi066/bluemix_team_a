@@ -85,6 +85,15 @@ function PasswordValidation() {
 	}
 }
 
+function ApprovedCheck(){
+	var total_time =  document.myForm.end_time.value - document.myForm.start_time.value;
+	if (total_time >= 500){
+		if (confirm("5시간 이상 예약은 관리자의 승인이 필요합니다. 승인신청 하시겠습니까?") == false)
+			return false;
+		else return true;
+	}else return true;
+}
+
 /*
 function isPossible(seq, pw){
    var possible = false;
@@ -356,7 +365,7 @@ function getAdminMonth(projectname){
                      
                      top = (timeToMin(data.meetings[j].start) - 540) / 30 * (hrSpan/2);
                      height = (timeToMin(data.meetings[j].end) - timeToMin(data.meetings[j].start)) / 30 * (hrSpan/2);
-
+                     
                      // �삁�빟�릺�뼱�엳吏� �븡�뒗 怨듦컙
                      start = bottom/(hrSpan/2)*30+540;
                      end = top/(hrSpan/2)*30+540;
@@ -417,20 +426,35 @@ function getAdminMonth(projectname){
                    height = (timeToMin(data.meetings[j].end) - timeToMin(data.meetings[j].start)) / 30 * (hrSpan/2);
 
                    var color = data.meetings[j].color;
-                   if(height <= (hrSpan/2))//30遺꾩쭨由� �삁�빟�씪�븣留� (湲��뵪媛� �옉�븘吏�誘�濡�)
-                      $('#meetings').append(
-                           
+                   if(height <= (hrSpan/2)){//30遺꾩쭨由� �삁�빟�씪�븣留� (湲��뵪媛� �옉�븘吏�誘�濡�)
+                	   if (data.meetings[j].approved == "N")
+                		   $('#meetings').append(                           
+                                   "<div id='reserved' class='meeting'"
+                                   + "style='background-color:rgba(255,0,0,0.4); top:"+top+"px; left:"+left+"px; width:"+width+"px; height:"+height+"px;'"
+                                   + "'>"+data.meetings[j].title+"<br>승인대기중</div>");
+                	   else
+                		   $('#meetings').append(                           
                             "<div id='reserved' class='meeting'"
                             + "style='background-color:"+color+"; top:"+top+"px; left:"+left+"px; width:"+width+"px; height:"+height+"px;'"
                             + "onClick='reserveInfo("+data.meetings[j].seq+");'>"+data.meetings[j].title+"</div>");
 
-                   else
-                   $('#meetings').append(
-                        
-                         "<div id='reserved' class='meeting'"
-                         + "style='background-color:"+color+"; top:"+top+"px; left:"+left+"px; width:"+width+"px; height:"+height+"px; padding-top:"+(height-15)/2+"px'"
-                         + "onClick='reserveInfo("+data.meetings[j].seq+");'>"+data.meetings[j].title+"</div>");
-               }
+                   }else{
+                	   /*
+                	    * 기능1) 5시간 이상 예약시 승인대기 상태
+                	    * Nam Ho Kang
+                	    */
+                	   if (data.meetings[j].approved == "N")
+                		   $('#meetings').append(                           
+                                   "<div id='reserved' class='meeting'"
+                                   + "style='background-color:rgba(255,0,0,0.4); top:"+top+"px; left:"+left+"px; width:"+width+"px; height:"+height+"px; padding-top:"+(height-15)/2+"px'"
+                                   + "'>"+data.meetings[j].title+"<br>승인대기중</div>");
+                	   else
+                		   $('#meetings').append(
+                				   "<div id='reserved' class='meeting'"
+                				   + "style='background-color:"+color+"; top:"+top+"px; left:"+left+"px; width:"+width+"px; height:"+height+"px; padding-top:"+(height-15)/2+"px'"
+                				   + "onClick='reserveInfo("+data.meetings[j].seq+");'>"+data.meetings[j].title+"</div>");
+                   }
+                   }
             },
             error : function() {
                console.log("error");
@@ -457,18 +481,28 @@ function getAdminMonth(projectname){
                $('#phone').empty();
                $('#email').empty();
                $('#date').empty();
-               $('#confer_nm').empty();
+               /*$('#confer_nm').empty();
+                * 수정2) 회의실 선택 가능하게 변경
+                * Nam Ho Kang
+                */
                $('#title').empty();
                $('#rsv_seq').empty();
                $('#rsv_correct_pw').empty();
                $('#rsv_repeat_seq').empty();
+               $('#total_time').empty();
+
 
                for(var i=0; i<data.result.length; i++) {
                   $('input[name="name"]').val(data.result[i].name);
                   $('input[name="phone"]').val(data.result[i].phone);
                   $('input[name="email"]').val(data.result[i].email);
+                  $("#confer_nm").val(data.result[i].confer_nm).attr("selected", "selected");
+                  /*
+                   * $('input[name="confer_nm"]').val(data.result[i].confer_nm);
+                   * 수정2) 회의실 선택 가능하게 변경
+                   * Nam Ho Kang
+                   */
                   $('input[name="date"]').val(data.result[i].date);
-                  $('input[name="confer_nm"]').val(data.result[i].confer_nm);
                   $('input[name="title"]').val(data.result[i].title);
                   $('input[name="rsv_seq"]').val(""+seq);
                   $('input[name="rsv_correct_pw"]').val(data.result[i].password);
@@ -477,18 +511,19 @@ function getAdminMonth(projectname){
                   
                   if(data.result[i].repeat_seq == 0){
                 	  $('#adminRsvButton').empty();
-                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Modify(0);'>�닔�젙</button>");
-                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Delete(0);'>�궘�젣</button>");
+                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Modify(0);'>수정</button>");
+                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Delete(0);'>삭제</button>");
                   }else{
                 	  $('#adminRsvButton').empty();
-                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Modify(0);'>�닔�젙</button>");
-                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Delete(0);'>�궘�젣</button>");
-                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Modify(1);'>�쟾泥댁닔�젙</button>");
-                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Delete(1);'>�쟾泥댁궘�젣</button>");
+                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Modify(0);'>수정</button>");
+                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Delete(0);'>삭제</button>");
+                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Modify(1);'>전체수정</button>");
+                	  $("#adminRsvButton").append("<button type='button' class='btn btn-primary' onClick='Delete(1);'>전체삭제</button>");
                   }
                }
 
                timeSelectListAll(data.result[0].start_time, data.result[0].end_time);
+               rsvclick(data.result[0].start_time, data.result[0].end_time);
             },
             error : function() {
                console.log("error");
@@ -509,14 +544,25 @@ function getAdminMonth(projectname){
          $('#name').empty();
          $('#phone').empty();
          $('#email').empty();
-         $('#confer_nm').empty();
+         /*$('#confer_nm').empty();
+          * 수정2) 회의실 선택 가능하게 변경
+          * Nam Ho Kang
+          */
+         
          $('#title').empty();
          $('#del_pw').empty();
+         $('#total_time').empty();
 
          $('input[name="name"]').val("");
          $('input[name="phone"]').val("");
          $('input[name="email"]').val("");
-         $('input[name="confer_nm"]').val(conference[conf_idx]);
+         $('input[name="total_time"]').val("1시간 00분");
+         
+         $("#confer_nm").val(conference[conf_idx]).attr("selected", "selected");
+         /*$('input[name="confer_nm"]').val(conference[conf_idx]);
+          * 수정2) 회의실 선택 가능하게 변경
+          * Nam Ho Kang
+          */
          $('input[name="title"]').val("");
          $('input[name="del_pw"]').val("");
          $("#color").val("#00599D").attr("selected", "selected");
@@ -556,6 +602,20 @@ function getAdminMonth(projectname){
          }
          $("#end_time").val(end).attr("selected", "selected");
       }
+      
+    //예약시 총 시간 확인 Nam Ho Kang
+		function rsvclick(start, end){
+			var total_time =  end - start;
+			$('input[name="hdn_time"]').val(total_time);
+			if (total_time <= 70)
+				total_time = "0" + total_time;	
+			var total_time_hour = total_time.toString().substring(0, 1);
+			var total_time_minute = total_time.toString().substring(1, 3);
+			if (total_time_minute == "70")
+				total_time_minute = "30";
+			total_time = total_time_hour + "시간 " + total_time_minute + "분";
+			$('input[name="total_time"]').val(total_time);
+		}
 
 
       $(document).ready(function(){

@@ -4,6 +4,7 @@
 
 </style>
 	<br><br>
+	<div class = "container" id = "footer">
    <div class="row" align="center">
 
       <div style="font-family:'Jeju Gothic', serif;font-size:24px">
@@ -16,3 +17,4 @@
    <div class="footbar-header bor">
       <img src="image/colorbar-01.png" width="100%" title="top">
    </div>
+</div>

@@ -101,7 +101,11 @@ textarea:focus,input:focus,input[type]:focus,.uneditable-input:focus {
                   <td><%=dto.getRsv_Mem_Nm()%></td>
                   <td><%=dto.getRsv_Mem_Pn()%></td>
                   <td><%=dto.getRsv_Confer_Nm()%></td>
-                  <td><%=dto.getRsv_Title()%></td>
+                  <!-- 기능3) 검색 기능 개선
+                  		검색 결과의 제목 클릭 시 날짜 페이지로 이동
+                  		Nam Ho Kang -->
+                  <td><a href="home.do?selectDate=<%=dto.getRsv_Date() %>">
+                  <%=dto.getRsv_Title()%></a></td>
                </tr>
                <%
                   }}
@@ -110,6 +114,15 @@ textarea:focus,input:focus,input[type]:focus,.uneditable-input:focus {
          </table>
       </div>
 
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<!-- footer -->
+		<%@ include file="footer.jsp"%>
 
 </body>
 </html>

@@ -150,6 +150,7 @@ nav a {
          <ul class="nav navbar-nav inline cl-effect-16">
             <li><a href="home.do" class="font-style" style="color:#000;">예약/현황</a></li>
             <li><a href="SearchRsv.do?option=all" class="font-style" style="color:#000;">검색</a></li>
+						<li><a href="Request_Repeat.jsp" class="font-style" style="color:#000;">반복예약신청</a></li>
 
             <%if(session.getAttribute("project").equals("master")){ %>
             <li><a href="SelectProject.do" class="font-style" style="color:#000;"><span

@@ -21,7 +21,6 @@
 <!-- 자동채우기 -->
 <script src="js/ajax_auto.js?ver=1"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-
 <script src="js/RsvView.js?ver=1"></script>
 <link rel="stylesheet" type="text/css" href="css/RsvView.css?ver=1">
 
@@ -56,8 +55,10 @@ textarea:focus,input:focus,input[type]:focus,.uneditable-input:focus {
 
 </style>
 
-
 <script language="javascript">
+//window.setTimeout('window.location.reload()',60000); //60초마다 새로고침
+
+
 function adminMonthValidation(){
    var projectnm = "<%=(String)session.getAttribute("project")%>";
    if (document.myForm.date.value != "") {
@@ -155,39 +156,57 @@ function adminMonthValidation(){
                                     <div class="input-group-addon">
                                        <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" readonly class="form-control" id="date"
-                                       name="date">
+                                    <input type="text" class="form-control" id="date"  name="date">
+                                    <!-- 수정2) 날짜 선택 가능하게 변경 Nam Ho Kang -->
+                                       <script>
+																				$('#date').datepicker({
+																					dateFormat : 'yyyy-mm-dd'
+																				});
+																				$('#date').datepicker('hide');
+																			</script>
+																		<!-- 수정 END -->
                                  </div>
                               </div>
                            </div>
-                           <div class="col-md-3">
-                              <div class="form-group">
+                           <div class="col-md-2">
+                              <div class="form-group ">
                                  <label class="control-label " for="start_time"> 시작시간
                                  </label>
                                  <div class="input-group">
                                     <div class="input-group-addon">
                                        <i class="fa fa-clock-o"> </i>
                                     </div>
-                                    <select class="form-control" name="start_time"
-                                       id="start_time">
-                                       <option value="">선택하세요</option>
+                                    <select class="form-control" name="start_time" id="start_time" onchange="timeclick()">
+                                       <option value="">선택</option>
                                     </select>
                                  </div>
                               </div>
                            </div>
-                           <div class="col-md-3">
-                              <div class="form-group">
-                                 <label class="control-label" for="end_time"> 끝시간 </label>
+                           <div class="col-md-2">
+                              <div class="form-group ">
+                                 <label class="control-label " for="end_time"> 끝시간 </label>
                                  <div class="input-group">
                                     <div class="input-group-addon">
                                        <i class="fa fa-clock-o"> </i>
                                     </div>
-                                    <select class="form-control" name="end_time" id="end_time">
-                                       <option value="">선택하세요</option>
+                                    <select class="form-control" name="end_time" id="end_time" onchange="timeclick()">
+                                       <option value="">선택</option>
                                     </select>
                                  </div>
                               </div>
                            </div>
+                            <div class="col-md-2">
+                              <div class="form-group">
+                                 <label class="control-label " for="total_time"> 총시간 </label>
+                                 <div class="input-group">
+                                    <div class="input-group-addon">
+                                       <i class="fa fa-clock-o"> </i>
+                                    </div>
+                                    <input class="form-control" id="total_time" name="total_time" type="text" readonly  />                                    
+                                 </div>
+                              </div>
+                           </div>
+                           <input type = "hidden" name = "hdn_time" id = "hdn_time" value = ""/>
                            <div class="col-md-3">
                               <div class="form-group ">
                                  <label class="control-label" for="color"> 색깔
@@ -196,8 +215,7 @@ function adminMonthValidation(){
                                     <div class="input-group-addon">
                                        <i class="fa fa-clock-o"> </i>
                                     </div>
-                                    <select class="form-control" name="color"
-                                       id="color">
+                                    <select class="form-control" name="color" id="color">
                                        <option value="#00599D">파랑</option>
                                        <option value="#001D59">남색</option>
                                        <option value="#3399ff">하늘</option>
@@ -217,8 +235,15 @@ function adminMonthValidation(){
                                     <div class="input-group-addon">
                                        <i class="fa fa-building"> </i>
                                     </div>
-                                    <input type="text" readonly class="form-control" id="confer_nm"
+                           					<!-- 수정2) 회의실 선택 가능하게 변경 Nam Ho Kang -->                                    
+                                    <select class="form-control" id="confer_nm"
                                        name="confer_nm">
+                                       <option value="에스프레소A">에스프레소A</option>
+                                       <option value="에스프레소B">에스프레소B</option>
+                                       <option value="마끼야또">마끼야또</option>
+                                       <option value="카푸치노">카푸치노</option>
+                                    </select>
+                                    <!-- 수정 END -->
                                  </div>
                               </div>
                            </div>
@@ -308,6 +333,32 @@ function adminMonthValidation(){
    </form>
    <div style="margin-top: 30px"></div>
 	<script>
+			//기능1) 예약시 총 시간 확인 Nam Ho Kang
+			function timeclick(){
+				var total_time =  document.myForm.end_time.value - document.myForm.start_time.value;
+				if (total_time <= 0){
+					alert("시간을 확인하여 주십시오.");
+					return false;
+				}
+				if (total_time <= 70)
+					total_time = "0" + total_time;	
+				var total_time_hour = total_time.toString().substring(0, 1);
+				var total_time_minute = total_time.toString().substring(1, 3);
+				if (total_time_minute == "70")
+					total_time_minute = "30";
+				total_time = total_time_hour + "시간 " + total_time_minute + "분";
+				$('input[name="total_time"]').val(total_time);
+			}
+			/*
+			* 수정3) 화면 자동 Refresh
+			* 3초에 한번씩 화면 자동 Refresh
+			* Nam Ho Kang
+			*/
+      function autoRefresh_schedule(){
+		  displaySchedule($("#date").val());
+			}
+			setInterval('autoRefresh_schedule()', 3000); 
+
       //해당 날짜 선택되어 있게
       <%
       if(selectDate != null){%>
@@ -331,7 +382,14 @@ function adminMonthValidation(){
          if(PasswordValidation() == false){
         	 return false;
          }
+
+         if(ApprovedCheck() == false){
+        	 return false;
+         }
          
+         var status = "T";
+         if ((document.myForm.end_time.value - document.myForm.start_time.value) >= 500)
+        	 status = "N";
          $.ajax({
         	  async : false,
               type : "post",
@@ -341,15 +399,15 @@ function adminMonthValidation(){
                  phone : document.myForm.phone.value,
                  name : document.myForm.name.value,
                  email : document.myForm.email.value,
-                 site : document.myForm.site.value,
-                 
+                 site : document.myForm.site.value,                 
                  confer_nm : document.myForm.confer_nm.value,
                  date : document.myForm.date.value,
                  start_time : document.myForm.start_time.value,
                  end_time : document.myForm.end_time.value,
                  color : document.myForm.color.value,
                  title : document.myForm.title.value,
-                 del_pw : document.myForm.del_pw.value
+                 del_pw : document.myForm.del_pw.value,
+                 approved : status
               },
               
               success : function(data) {
@@ -365,7 +423,7 @@ function adminMonthValidation(){
                  console.log("error");
               }
            });
-         document.myForm.action = "home.do?selectDate="+document.myForm.datepicker.value;
+         document.myForm.action = "home.do?selectDate="+document.myForm.date.value;
          document.myForm.submit();
       }
 
@@ -375,7 +433,21 @@ function adminMonthValidation(){
          }
          if(PasswordCheck() == false){
              return false;
-        }
+         }
+         /*
+         * 기능1)
+         * Nam Ho Kang
+         */
+         var status = "T";
+         if(document.myForm.hdn_time.value < 500){
+        	if(ApprovedCheck() == false){
+        	 	return false;
+        	 }else status = "N";
+         }else if ((document.myForm.end_time.value - document.myForm.start_time.value) >= document.myForm.hdn_time.value){
+    		 	if(confirm("예약을 5시간 이상으로 수정하기 위해선 관리자의 승인이 필요합니다. 승인신청 하시겠습니까?") == false){
+         	 	return false;
+    	 	 	}else status = "N";
+    	 		}
          
          $.ajax({
         	  async : false,
@@ -396,6 +468,7 @@ function adminMonthValidation(){
                  color : document.myForm.color.value,
                  title : document.myForm.title.value,
                  del_pw : document.myForm.del_pw.value,
+                 approved : status,
                  
                  repeat_seq : document.myForm.rsv_repeat_seq.value,
                  option : option
@@ -413,7 +486,7 @@ function adminMonthValidation(){
                  console.log("error");
               }
            });
-         document.myForm.action = "home.do?selectDate="+document.myForm.datepicker.value;
+         document.myForm.action = "home.do?selectDate="+document.myForm.date.value;
          document.myForm.submit();
       }
 
@@ -444,7 +517,7 @@ function adminMonthValidation(){
               }
            });
          //setDate(document.myForm.date.value);
-         document.myForm.action = "home.do?selectDate="+document.myForm.datepicker.value;
+         document.myForm.action = "home.do?selectDate="+document.myForm.date.value;
          document.myForm.submit();
       }
       
@@ -479,12 +552,14 @@ function adminMonthValidation(){
 
 		function confCheck() {
 			theForm = document.myForm;
-			if (theForm.confer_nm.value == "")
+			if (theForm.confer_nm.value == ""){
 				alert("회의실을 선택하세요.");
+				title.blur();
+			}
 		}
 	</script>
-
 	<!-- footer -->
    <%@ include file="footer.jsp"%>  
+   
 </body>
 </html>

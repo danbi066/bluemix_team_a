@@ -66,13 +66,14 @@ public class Reservation extends HttpServlet {
 		String title = request.getParameter("title");
 		String del_pw = request.getParameter("del_pw");
 		String color = request.getParameter("color");
+		String approved = request.getParameter("approved");
 		
 		String message = "ok";
 
 		RsvDAO rdao = new RsvDAO();
 		MemberDAO mdao = new MemberDAO();
 		RsvDTO rdto = new RsvDTO(date, start_time, end_time, title, site,
-		confer_nm, name, phone, email, del_pw, color);
+		confer_nm, name, phone, email, del_pw, color, approved);
 		
 		
 		System.out.println("===========InsertReservation.java============");
@@ -83,7 +84,7 @@ public class Reservation extends HttpServlet {
 			message = "You are blocked";
 		} else {
 			if(rdao.CheckRsv(confer_nm,start_time,end_time,site,date)){
-				//È¸¿øÁ¤º¸ Ãß°¡ ¹× ¾÷µ¥ÀÌÆ®
+				//È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 				
 				MemberDTO mdto = new MemberDTO(name, phone, email, site);
 				if (mdao.isCheckID(phone) == false) {
@@ -92,11 +93,11 @@ public class Reservation extends HttpServlet {
 					mdao.updateMemberPhone(mdto);
 				}
 				
-				// È¸ÀÇ½Ç ¿¹¾à
+				// È¸ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 				rdao.insert(rdto);
 				
-				// È¸ÀÇ½Ç ¿¹¾à ³»¿ª Ãß°¡
+				// È¸ï¿½Ç½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 				HistoryDAO hdao = new HistoryDAO();
 				HistoryDTO hdto = new HistoryDTO(date, start_time, end_time, title, site,
 						confer_nm, name, phone, email, del_pw, "reserve");

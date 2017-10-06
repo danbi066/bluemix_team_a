@@ -70,6 +70,8 @@ public class ModifyRsv extends HttpServlet {
 		String title = request.getParameter("title");
 		String del_pw = request.getParameter("del_pw");
 		String color = request.getParameter("color");
+		String approved = request.getParameter("approved");
+
 		
 		Integer repeat_seq = Integer.parseInt(request.getParameter("repeat_seq"));
 		Integer option = Integer.parseInt(request.getParameter("option"));
@@ -82,7 +84,7 @@ public class ModifyRsv extends HttpServlet {
 		
 		RsvDAO rdao = new RsvDAO();
 		RsvDTO rdto = new RsvDTO(seq, date, start_time, end_time, title, site,
-				confer_nm, name, phone, email, del_pw, color);
+				confer_nm, name, phone, email, del_pw, color, approved);
 
 		System.out.println("===========ModifyRsv.java============");
 		

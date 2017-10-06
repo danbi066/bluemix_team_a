@@ -1,6 +1,7 @@
-package com.ibm.cof.controller.ConfController;
+package com.ibm.cof.controller.RsvController;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,25 +11,29 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.ibm.cof.dao.ConfDAO;
+import com.ibm.cof.dao.AdminDAO;
+import com.ibm.cof.dao.HistoryDAO;
+import com.ibm.cof.dao.RsvDAO;
+import com.ibm.cof.dto.HistoryDTO;
+import com.ibm.cof.dto.RsvDTO;
 
 /**
- * Servlet implementation class SelectBySite
+ * Servlet implementation class DeleteRsv
+ * ApproveRsv.java by Nam Ho Kang
  */
-@WebServlet("/SelectBySite.do")
-public class SelectBySite extends HttpServlet {
+@WebServlet("/ApproveRsv.do")
+public class ApproveRsv extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public SelectBySite() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public ApproveRsv() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -46,28 +51,13 @@ public class SelectBySite extends HttpServlet {
 		doProcess(request, response);
 	}
 
-	
 	protected void doProcess(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");
-		HttpSession session=request.getSession();
-		
-		String projname = request.getParameter("proj");
-		if(projname == null){
-			projname = (String)session.getAttribute("project");
-		}
+		int seq = Integer.parseInt(request.getParameter("seq"));
+		RsvDAO rdao = new RsvDAO();
+		rdao.approve(seq);
 
-		JSONArray json = new JSONArray();
-	    ConfDAO cdao = new ConfDAO(); 
-	    
-		json = cdao.selectListByName(projname);
-		
-		JSONObject obj = new JSONObject();
-		
-		obj.put("result",json);
-		//System.out.println("obj is: "+obj);
+		RequestDispatcher rd = request.getRequestDispatcher("SearchApprove.do");
+		rd.forward(request, response);
+	}	
 	
-		response.setContentType("text/html;charset=UTF-8");
-		response.getWriter().print(obj);
-		response.setCharacterEncoding("UTF-8");
-    }
 }

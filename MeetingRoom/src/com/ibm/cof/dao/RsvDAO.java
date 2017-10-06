@@ -35,8 +35,8 @@ public class RsvDAO {
 	public void insert(RsvDTO rdto) {
 		String query = "insert into tb_reservation(rsv_site,rsv_confer_nm,rsv_date, "
 				+ "rsv_start_time, rsv_end_time, rsv_title, "
-				+ "rsv_mem_nm,rsv_mem_pn,rsv_mem_em,rsv_del_pw,rsv_color,rsv_reg_date)"
-				+ " values(?,?,?,?,?,?,?,?,?,?,?,now())";
+				+ "rsv_mem_nm,rsv_mem_pn,rsv_mem_em,rsv_del_pw,rsv_color,approved, rsv_reg_date)"
+				+ " values(?,?,?,?,?,?,?,?,?,?,?,?,now())";
 		try {
 			conn = db.connect();
 			pstmt = conn.prepareStatement(query);
@@ -51,6 +51,8 @@ public class RsvDAO {
 			pstmt.setString(9, rdto.getRsv_Mem_Em());
 			pstmt.setString(10, rdto.getRsv_Del_Pw());
 			pstmt.setString(11, rdto.getRsv_Color());
+			pstmt.setString(12, rdto.getRsv_Approved());
+
 
 			pstmt.executeUpdate();
 
@@ -69,7 +71,7 @@ public class RsvDAO {
 	public void update(RsvDTO rdto) {
 		String query = "update tb_reservation set rsv_confer_nm=?, rsv_date=?, "
 				+ "rsv_start_time=?, rsv_end_time=?, rsv_title=?, rsv_color=?, "
-				+ "rsv_site=?, rsv_mem_nm=?,rsv_mem_pn=?,rsv_mem_em=?" + " where rsv_seq=?";
+				+ "rsv_site=?, rsv_mem_nm=?,rsv_mem_pn=?,rsv_mem_em=?,approved=?" + " where rsv_seq=?";
 		try {
 			conn = db.connect();
 			pstmt = conn.prepareStatement(query);
@@ -84,7 +86,9 @@ public class RsvDAO {
 			pstmt.setString(8, rdto.getRsv_Mem_Nm());
 			pstmt.setString(9, rdto.getRsv_Mem_Pn());
 			pstmt.setString(10, rdto.getRsv_Mem_Em());
-			pstmt.setInt(11, rdto.getRsv_Seq());
+			pstmt.setString(11, rdto.getRsv_Approved());
+			pstmt.setInt(12, rdto.getRsv_Seq());
+
 
 			pstmt.executeUpdate();
 		} catch (Exception e) {
@@ -460,6 +464,55 @@ public class RsvDAO {
 		return json;
 	}
 
+	/*
+	 * 기능3) 검색 기능 개선
+	 * 전체 검색
+	 * Nam Ho Kang
+	 */
+	public ArrayList<RsvDTO> selectAll(String site, String context) {
+		ArrayList<RsvDTO> dtos = new ArrayList<RsvDTO>();
+		RsvDTO dto = null;
+		String title, confer_nm, date, start, end, name, phone;
+		String query = "select rsv_title, rsv_site, rsv_confer_nm, rsv_date, rsv_start_time, rsv_end_time, rsv_mem_nm, rsv_mem_pn from tb_reservation "
+					+ "where rsv_site= ? " 
+					+ "and rsv_title = ? or rsv_mem_pn = ? or rsv_mem_nm = ? "
+					+ "and rsv_date >= DATE_FORMAT(NOW(),'%Y-%m-%d')"
+					+ "order by rsv_date, rsv_start_time";
+		
+		try {			
+			conn = db.connect();
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, site);
+			pstmt.setString(2, context);
+			pstmt.setString(3, context);
+			pstmt.setString(4, context);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				title = rs.getString("rsv_title");
+				confer_nm = rs.getString("rsv_confer_nm");
+				date = rs.getString("rsv_date");
+				start = rs.getString("rsv_start_time");
+				end = rs.getString("rsv_end_time");
+				name = rs.getString("rsv_mem_nm");
+				phone = rs.getString("rsv_mem_pn");
+
+				dto = new RsvDTO(title, site, confer_nm, date, start, end,
+						name, phone);
+				dtos.add(dto);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				db.close(rs, pstmt, conn);
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return dtos;
+	}
+
 	/* 현재날짜 이후로 프로젝트별 예약 현황을 가져온다 날짜,시간 오름차순 정렬 */
 	public ArrayList<RsvDTO> selectAll(String site) {
 		ArrayList<RsvDTO> dtos = new ArrayList<RsvDTO>();
@@ -632,6 +685,7 @@ public class RsvDAO {
 		return dtos;
 	}
 
+	@SuppressWarnings("unchecked")
 	public JSONArray selectBySiteDate(String site, String date) {
 		JSONArray jarray = new JSONArray();
 		String query = "select * from tb_reservation where rsv_site=? and rsv_date=? "
@@ -659,6 +713,7 @@ public class RsvDAO {
 				json.put("email", rs.getString("rsv_mem_em"));
 				json.put("pwd", rs.getString("rsv_del_pw"));
 				json.put("color", rs.getString("rsv_color"));
+				json.put("approved", rs.getString("approved"));
 
 				jarray.add(json);
 			}
@@ -989,5 +1044,79 @@ public class RsvDAO {
 	      }
 	      return max;
 	   }
+
+	/*
+	 * 기능1) 승인 페이지로 불러오기
+	 * Nam Ho Kang
+	 */
+	public ArrayList<RsvDTO> selectnotapproved(String site) {
+		ArrayList<RsvDTO> dtos = new ArrayList<RsvDTO>();
+		RsvDTO dto = null;
+		String title, confer_nm, date, start, end, name, phone, email;
+		int seq;
+		String query = "select rsv_seq, rsv_title, rsv_site, rsv_confer_nm, rsv_date, rsv_start_time, rsv_end_time, "
+				+ "rsv_mem_em, rsv_mem_nm, rsv_mem_pn, approved from tb_reservation "
+				+ "where approved = 'N' and rsv_date >= DATE_FORMAT(NOW(),'%Y-%m-%d') order by rsv_date, rsv_start_time";
+
+		try {	
+			/*conn = db.connect();
+			st = conn.createStatement();
+			rs = st.executeQuery(query);*/
+			
+			conn = db.connect();
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				seq = rs.getInt("rsv_seq");
+				title = rs.getString("rsv_title");
+				confer_nm = rs.getString("rsv_confer_nm");
+				date = rs.getString("rsv_date");
+				email = rs.getString("rsv_mem_em");
+				start = rs.getString("rsv_start_time");
+				end = rs.getString("rsv_end_time");
+				name = rs.getString("rsv_mem_nm");
+				phone = rs.getString("rsv_mem_pn");
+
+				dto = new RsvDTO(seq, title, site, confer_nm, date, email, start, end,
+						name, phone);
+				dtos.add(dto);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				db.close(rs, pstmt, conn);
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return dtos;
+	}
+
+	/*
+	 * 기능1)
+	 * Nam Ho Kang
+	 */
+	public void approve(int rsv_seq) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		DBCon db = new DBCon();
+
+		try {
+			conn = db.connect();
+			String sql = "update tb_reservation set approved = 'T' where rsv_seq=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, rsv_seq);
+			pstmt.executeUpdate();
+
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			db.close(pstmt, conn);
+		}
+	}
 
 }

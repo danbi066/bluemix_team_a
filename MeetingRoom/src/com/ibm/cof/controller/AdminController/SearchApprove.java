@@ -1,4 +1,4 @@
-package com.ibm.cof.controller.RsvController;
+package com.ibm.cof.controller.AdminController;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,20 +11,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.ibm.cof.dao.AdminDAO;
 import com.ibm.cof.dao.RsvDAO;
 import com.ibm.cof.dto.RsvDTO;
 
 /**
- * Servlet implementation class SearchRsv
+ * Servlet implementation class AdminLogin
+ * SearchApprove.java by Nam Ho Kang
  */
-@WebServlet("/SearchRsv.do")
-public class SearchRsv extends HttpServlet {
+@WebServlet("/SearchApprove.do")
+public class SearchApprove extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public SearchRsv() {
+    public SearchApprove() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -47,43 +49,20 @@ public class SearchRsv extends HttpServlet {
 
 	protected void doProcess(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
-
-		String option = request.getParameter("option");
-		String context = request.getParameter("context");
+		HttpSession session=request.getSession();
 		
 		RsvDAO dao = new RsvDAO();
 		ArrayList<RsvDTO> dtos = null;
-		
-		HttpSession session=request.getSession();
+
 		String site = (String)session.getAttribute("project");
 		
 		if(site != null){
-			if(site.equals("master")){
-				if(option.equals("all")) {
-					dtos = dao.selectAllMaster();
-				}else{
-					dtos = dao.selectByConditionMaster(option, context);
-				}
-			}else{
-				if(option.equals("all")) {
-					if(context == null)
-						dtos = dao.selectAll(site);
-					/*
-					 * 기능3) 검색 기능 개선
-					 * Nam Ho Kang
-					 */
-					else
-						dtos = dao.selectAll(site, context);
-					//기능 END
-				}else{
-					dtos = dao.selectByCondition(option, context, site);
-				}
-			}
+			dtos = dao.selectnotapproved(site);
 		}
-		
+
 		request.setAttribute("list", dtos);
 		
-        RequestDispatcher rd = request.getRequestDispatcher("Search.jsp");
+        RequestDispatcher rd = request.getRequestDispatcher("AdminRsvApprove.jsp");
         rd.forward(request, response);
     }
 }

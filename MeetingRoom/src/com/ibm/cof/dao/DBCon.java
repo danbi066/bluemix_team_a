@@ -10,21 +10,32 @@ import java.sql.Statement;
 public class DBCon {
 	
 	public Connection connect(){
-		
 		Connection conn = null;
 		
-		String url = "jdbc:mysql://localhost:3306/IBM";
-        String id = "bluemix";
-        String pw = "1234";
-        
-        try{
-           Class.forName("com.mysql.jdbc.Driver");
-           conn = DriverManager.getConnection(url, id, pw);
-        }catch(SQLException se){
-           se.printStackTrace();
-        }catch(Exception e){
-           e.printStackTrace();
-        }
+
+
+
+		//	String url = "jdbc:mysql://us-cdbr-sl-dfw-01.cleardb.net:3306/ibmx_e21af70c6f35c23?useUnicode=true&characterEncoding=UTF-8";
+		//	String id = "b81098c1ee198d";
+		//	String pw = "8c032d00";
+		/*String url = "jdbc:oracle:thin:@localhost:1521:xe";
+	      String id = "system";
+	      String pw = "1234";*/
+		
+
+	      // local �� ������ �ٲ㼭 ��������! 
+	      String url = "jdbc:mysql://localhost:3306/sys?autoReconnect=true&useSSL=false";
+	      String id = "bluemix";
+	      String pw = "ibmbluemix123";
+	      
+	      try{
+	         Class.forName("com.mysql.jdbc.Driver");
+	         conn = DriverManager.getConnection(url, id, pw);
+	      }catch(SQLException se){
+	         se.printStackTrace();
+	      }catch(Exception e){
+	         e.printStackTrace();
+	      }
 		
 		return conn;
 	}

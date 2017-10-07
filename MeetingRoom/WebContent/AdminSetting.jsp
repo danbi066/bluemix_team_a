@@ -27,6 +27,23 @@
 		}
 		document.pwForm.submit();
 	};
+	// 기능1. 시간걸정시 공백 및 5시간이하로 설정되지 않도록 유효성 검사 
+	// Ja Yong Shin 
+	function timeLimitValidationCheck(){
+		theForm = document.timeForm;
+		      
+		    if(theForm.newtimelimit.value == ""){
+		        alert("새로운 시간 제한값을 입력해 주세요");
+		        theForm.newtimelimit.focus();
+		        return false;
+		      }
+		      if(parseInt(theForm.newtimelimit.value) < 6){
+		         alert("5시간 이상 설정해 주세요");
+		         theForm.newtimelimit.focus();
+		         return false;
+		      }
+		      document.timeForm.submit();
+	};
 	
 	function monthValidationCheck() {
 		theForm = document.monthForm;
@@ -106,6 +123,7 @@
 		<li><a href="AdminRsv.jsp">예약관리</a></li>
 		<li><a href="AdminRsvHist.jsp">예약내역</a></li>
 		<li><a href="SearchApprove.do">예약승인</a></li>
+		<li><a href="RepeatRsv.do">반복예약</a></li>
 		<li><a href="SearchMember.do?option=all">On-Boarding</a></li>
 		<li><a href="SearchBlock.do?option=all">Off-Boarding</a></li>
 		<li><a href="SelectConf.do">회의실관리</a></li>
@@ -143,6 +161,30 @@
          </div>
       </div>
    </center>
+	
+	 <!-- 기능1) 설정시간으로 예약제한   -->
+	 <!--  Ja Yong Shin -->
+   <center>
+      <div class="container">
+
+         <div style="margin-top: 1%; padding: 3%">
+            <div class="well well-sm col-md-11 col-sm-11 col-xs-12 col-centered"
+               style="border-radius: 10px;">
+                  <form method="post" name="timeForm" action="ChangeTime.do">
+                  <div class="form-inline" style="margin-top: 30px">
+
+                예약제한 시간 <input name="newtimelimit" id="newtimelimit" class="form-control">
+                  
+                  <button type="button" class="btn btn-info" style="margin-left: 20px;" 
+                        onClick ="timeLimitValidationCheck()">변경하기</button>
+                     </div>
+                </form>
+               <br>
+               </div>
+            </div>
+         </div>
+   </center>
+	
 	
 	<!-- 예약 가능한 달 수 바꾸기   -->
 	<center>
